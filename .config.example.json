@@ -1,0 +1,26 @@
+{
+  "accounts": {
+    "mainnet": {
+      "privateKey": "0x",
+      "publicKey": "0x"
+    },
+    "ropsten": {
+      "privateKey": "0x",
+      "publicKey": "0x"
+    }
+  },
+  "infura": {
+    "apiKey": ""
+  },
+  "alchemy": {
+    "mainnet": {
+      "apiKey": ""
+    },
+    "ropsten": {
+      "apiKey": ""
+    }
+  },
+  "etherscan": {
+    "apiKey": ""
+  }
+}
