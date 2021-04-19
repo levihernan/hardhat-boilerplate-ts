@@ -1,8 +1,10 @@
 import UniswapV2FactoryContract from '@uniswap/v2-core/build/UniswapV2Factory.json';
 import UniswapV2Router02Contract from '@uniswap/v2-periphery/build/UniswapV2Router02.json';
+import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import WETHContract from '@uniswap/v2-periphery/build/WETH9.json';
 import { deployContract } from 'ethereum-waffle';
-import { BigNumber, Contract, ethers, Signer, utils } from 'ethers';
+import { BigNumber, Contract, Signer, utils } from 'ethers';
+import { ethers } from 'hardhat';
 
 let WETH: Contract, uniswapV2Factory: Contract, uniswapV2Router02: Contract;
 
@@ -21,28 +23,31 @@ const deploy = async ({ owner }: { owner: Signer }) => {
   };
 };
 
-const createPair = async ({ tokenA, tokenB }: { tokenA: Contract; tokenB: Contract }) => {
-  await uniswapV2Factory.createPair(tokenA.address, tokenB.address);
+const createPair = async ({ token0, token1 }: { token0: Contract; token1: Contract }) => {
+  await uniswapV2Factory.createPair(token0.address, token1.address);
+  const pairAddress = await uniswapV2Factory.getPair(token0.address, token1.address);
+  const pair = await ethers.getContractAt(IUniswapV2Pair.abi, pairAddress);
+  return pair;
 };
 
 const addLiquidity = async ({
   owner,
-  tokenA,
+  token0,
   amountA,
-  tokenB,
+  token1,
   amountB,
 }: {
   owner: Signer;
-  tokenA: Contract;
+  token0: Contract;
   amountA: BigNumber;
-  tokenB: Contract;
+  token1: Contract;
   amountB: BigNumber;
 }) => {
-  await tokenA.approve(uniswapV2Router02.address, amountA);
-  await tokenB.approve(uniswapV2Router02.address, amountB);
+  await token0.approve(uniswapV2Router02.address, amountA);
+  await token1.approve(uniswapV2Router02.address, amountB);
   await uniswapV2Router02.addLiquidity(
-    tokenA.address,
-    tokenB.address,
+    token0.address,
+    token1.address,
     amountA,
     amountB,
     amountA,
@@ -57,20 +62,20 @@ const addLiquidity = async ({
 
 const addLiquidityETH = async ({
   owner,
-  tokenA,
-  tokenAmount,
+  token0,
+  token0mount,
   wethAmount,
 }: {
   owner: Signer;
-  tokenA: Contract;
-  tokenAmount: BigNumber;
+  token0: Contract;
+  token0mount: BigNumber;
   wethAmount: BigNumber;
 }) => {
-  await tokenA.approve(uniswapV2Router02.address, tokenAmount);
+  await token0.approve(uniswapV2Router02.address, token0mount);
   await uniswapV2Router02.addLiquidityETH(
-    tokenA.address,
-    tokenAmount,
-    tokenAmount,
+    token0.address,
+    token0mount,
+    token0mount,
     wethAmount,
     await owner.getAddress(),
     ethers.BigNumber.from('2').pow('256').sub('2'),
