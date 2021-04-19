@@ -1,64 +1,54 @@
+import 'dotenv/config';
+import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-ganache';
 import '@nomiclabs/hardhat-etherscan';
-import '@nomiclabs/hardhat-solhint';
 import { removeConsoleLog } from 'hardhat-preprocessor';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 
-const config = require('./.config.json');
-
-let hardhat = {};
-
-if (process.env.FORK) { 
-  hardhat = {
-    forking: { 
-      url: `https://eth-mainnet.alchemyapi.io/v2/${config.alchemy.mainnet.apiKey}`
-    }
-  };
-}
-
 module.exports = {
   defaultNetwork: 'hardhat',
-  networks: {
-    hardhat,
-    localMainnet: {
-      url: 'http://127.0.0.1:8545',
-      accounts: [config.accounts.mainnet.privateKey],
-      gasMultiplier: 1.1,
-    },
-    ropsten: {
-      url: `https://eth-ropsten.alchemyapi.io/v2/${config.alchemy.ropsten.apiKey}`,
-      accounts: [config.accounts.ropsten.privateKey],
-      gasMultiplier: 1.1,
-      gasPrice: 'auto'
-    },
-    mainnet: {
-      url: `https://eth-mainnet.alchemyapi.io/v2/${config.alchemy.mainnet.apiKey}`,
-      accounts: [config.accounts.mainnet.privateKey],
-      gasMultiplier: 1.1,
-      gasPrice: 'auto'
-    }
-  },
-  solidity: {
-    version: '0.6.8',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
+  networks: process.env.TEST
+    ? {}
+    : {
+        hardhat: {
+          forking: {
+            enabled: process.env.FORK ? true : false,
+            url: process.env.MAINNET_HTTPS_URL,
+          },
+        },
+        localMainnet: {
+          url: process.env.LOCAL_MAINNET_HTTPS_URL,
+          accounts: [process.env.LOCAL_MAINNET_PRIVATE_KEY],
+        },
+        mainnet: {
+          url: process.env.MAINNET_HTTPS_URL,
+          accounts: [process.env.MAINNET_PRIVATE_KEY],
+          gasPrice: 'auto',
+        },
       },
-    }
-  },
-  mocha: {
-    timeout: 100000
+  solidity: {
+    compilers: [
+      {
+        version: '0.6.12',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
   },
   gasReporter: {
-    enabled: (process.env.REPORT_GAS) ? true : false
+    enabled: process.env.REPORT_GAS ? true : false,
+    currency: process.env.COINMARKETCAP_DEFAULT_CURRENCY,
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   preprocess: {
-    eachLine: removeConsoleLog((hre) => hre.network.name !== 'hardhat' && hre.network.name !== 'localhost'),
+    eachLine: removeConsoleLog((hre) => hre.network.name !== 'hardhat'),
   },
   etherscan: {
-    apiKey: `${config.etherscan.apiKey}`
-  }
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
 };
