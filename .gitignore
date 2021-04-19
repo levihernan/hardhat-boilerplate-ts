@@ -1,7 +1,6 @@
 # General
 node_modules
 .DS_STORE
-.env
 
 # Coverage
 coverage.json
@@ -12,4 +11,4 @@ cache
 artifacts
 
 # Config files
-.config.json
+.env
