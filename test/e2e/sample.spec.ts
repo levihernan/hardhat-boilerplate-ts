@@ -9,5 +9,7 @@ describe('Greeter', function () {
 
     await greeter.setGreeting('Hola, mundo!');
     expect(await greeter.greet()).to.equal('Hola, mundo!');
+
+    await new Promise((res) => setTimeout(res, 5000));
   });
 });

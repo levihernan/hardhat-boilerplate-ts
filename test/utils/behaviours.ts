@@ -26,7 +26,7 @@ const checkTxRevertedWithZeroAddress = async (tx: Promise<TransactionRequest>): 
 const deployShouldRevertWithZeroAddress = async ({ contract, args }: { contract: ContractFactory; args: any[] }): Promise<void> => {
   const deployContractTx = await contract.getDeployTransaction(...args);
   const tx = contract.signer.sendTransaction(deployContractTx);
-  await checkTxRevertedWithZeroAddress(tx);
+  await checkTxRevertedWithZeroAddress(tx as any);
 };
 
 const deployShouldRevertWithMessage = async ({
@@ -39,7 +39,7 @@ const deployShouldRevertWithMessage = async ({
   message: string;
 }): Promise<void> => {
   const deployContractTx = await contract.getDeployTransaction(...args);
-  const tx = contract.signer.sendTransaction(deployContractTx);
+  const tx = contract.signer.sendTransaction(deployContractTx) as any;
   await checkTxRevertedWithMessage({ tx, message });
 };
 
@@ -102,7 +102,7 @@ const deployShouldSetVariablesAndEmitEvents = async ({
   }[];
 }): Promise<void> => {
   const deployContractTx = await contract.getDeployTransaction(...args);
-  const tx = contract.signer.sendTransaction(deployContractTx);
+  const tx = contract.signer.sendTransaction(deployContractTx) as any;
   const address = getStatic<(tx: TransactionResponse) => string>(contract.constructor, 'getContractAddress')(await tx);
   const deployedContract = getStatic<(address: string, contractInterface: ContractInterface, signer?: Signer) => Contract>(
     contract.constructor,
