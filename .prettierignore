@@ -6,6 +6,7 @@
 .gitattributes
 .env.example
 .env
+workspace.code-workspace
 .DS_STORE
 
 # Hardhat
