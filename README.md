@@ -21,92 +21,98 @@ This boilerplate includes:
 - [Prettier](https://github.com/prettier-solidity/prettier-plugin-solidity)
 - [Coverage](https://github.com/sc-forks/solidity-coverage)
 - [Gas reporter](https://github.com/cgewecke/hardhat-gas-reporter/tree/master)
-- [Commitizen conventional changelog](https://github.com/commitizen/cz-conventional-changelog)
+- [Commitlint](https://github.com/conventional-changelog/commitlint)
 - [Standard version](https://github.com/conventional-changelog/standard-version)
-- [Uniswap](https://github.com/Uniswap/uniswap-v2-periphery) + internal tooling
+- [Uniswap](https://github.com/Uniswap/uniswap-v2-periphery) + [Internal tooling](./test/utils/uniswap.ts)
 
 ---
 
 ## Commands
 
-### Commit
+### **Coverage**
 
 ```bash
-npm run commit
-```
-
-It will commit with commitizen, allowing standard version to parse & set release's version accordingly.<br/>
-
-### Coverage
-
-```bash
-npm run coverage
+yarn coverage
 ```
 
 Runs solidity code coverage
 <br/>
 
-### Fork
+### **Fork**
 
 ```bash
-npm run fork
+yarn fork
 ```
 
 Runs a mainnet fork via hardhat's node forking util.
 
 ```bash
-npm run fork:script {path}
+yarn fork:script {path}
 ```
 
 Runs the script in mainnet's fork.
 
 ```
-npm run fork:test
+yarn fork:test
 ```
 
 Runs tests that should be run in mainnet's fork.
 <br/>
 
-### Lint
+### **Lint**
 
 ```bash
-npm run lint
+yarn lint
 ```
 
 Runs solhint.
 <br/>
 
-### Prettier (lint fix)
+### **Prettier (lint fix)**
 
 ```bash
-npm run lint:fix
+yarn lint:fix
 ```
 
 Runs prettier
 <br/>
 
-### Release
+### **Release**
 
 ```bash
-npm run release
+yarn release
 ```
 
 Runs standard changelog, changes package.json version and modifies CHANGELOG.md accordingly.
 <br/>
 
-### Test
+### **Test**
 
-```
-npm run test
+```bash
+yarn test
 ```
 
 Runs all solidity tests.
 <br/>
 
-### Gas report
-
+```bash
+yarn test:unit
 ```
-npm run test:gas
+
+Runs all solidity tests in folder [unit](./test/unit)
+<br/>
+
+```bash
+yarn test:e2e
+```
+
+Runs all solidity tests in folder [e2e](./test/e2e)
+<br/>
+
+### **Gas report**
+
+```bash
+yarn test:gas
 ```
 
 Runs all tests and report gas usage.
