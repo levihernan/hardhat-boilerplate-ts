@@ -1,0 +1,23 @@
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.4;
+
+contract Swapper {
+// le puedo dar tokenA y me lo swappea por tokenB
+
+  constructor(address _fromToken, address _toToken) {
+    // que le pueda mandar 2 addresses de token
+  }
+
+  function provide(uint256 _amount) {
+    // para proveer al contracto con tokens fromToken
+  }
+
+  function swap(uint256 _amount) {
+    // que use los providedTokens previamente para hacer un swap en uniswapV2
+  }
+
+  function withdraw(uint256 _amount) {
+    // que permita retirar los tokens swappeados
+  }
+
+}
