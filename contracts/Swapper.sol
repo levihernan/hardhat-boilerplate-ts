@@ -8,7 +8,7 @@ import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 contract Swapper {
   using SafeMath for uint256;
-  using SafeERC20 for IERC20;
+  // using SafeERC20 for IERC20;
 
   mapping(address => mapping(address => uint256)) public balance;
 

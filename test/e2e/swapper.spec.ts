@@ -17,7 +17,7 @@ describe('Testing deployment', () => {
   let dude: JsonRpcSigner;
   let deployer: SignerWithAddress;
 
-  let SwapperContract: ContractFactory;
+  let swapperContract: ContractFactory;
   let swapper: Contract;
 
   const { network } = require('hardhat');
@@ -31,39 +31,56 @@ describe('Testing deployment', () => {
   const dudeAddress = '0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503';
 
   before('deploy contract', async () => {
-    await network.provider.request({ method: 'hardhat_impersonateAccount', params: [dudeAddress] });
-    dude = await ethers.provider.getUncheckedSigner(dudeAddress);
+    // await network.provider.request({ method: 'hardhat_impersonateAccount', params: [dudeAddress] });
+    // dude = await ethers.provider.getUncheckedSigner(dudeAddress);
   });
 
   beforeEach(async () => {
-    tokenA = await ethers.getContractAt('contracts/interfaces/IERC20.sol:IERC20', tokenAadd);
-    tokenB = await ethers.getContractAt('contracts/interfaces/IERC20.sol:IERC20', tokenBadd);
-    SwapperContract = await ethers.getContractFactory('Swapper');
-    swapper = await SwapperContract.deploy(tokenAadd, tokenBadd);
+
+    await evm.reset({
+      jsonRpcUrl: process.env.MAINNET_HTTPS_URL,
+      blockNumber: 12509240,
+    });
+
+    await network.provider.request({ method: 'hardhat_impersonateAccount', params: [dudeAddress] });
+    dude = await ethers.provider.getUncheckedSigner(dudeAddress);
+    tokenA = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', tokenAadd);
+    tokenB = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', tokenBadd);
+    swapperContract = await ethers.getContractFactory('Swapper');
+    swapper = await swapperContract.deploy(tokenAadd, tokenBadd);
   });
 
   describe('test', async () => {
     context('deploy', async () => {
-      let balanceTx: TransactionResponse;
+      let balance: BigNumber;
       given(async () => {
         console.log('hello!');
-        balanceTx = await swapper.balanceFrom(dudeAddress);
+        balance = await swapper.balance(tokenAadd, dudeAddress);
       });
       then('it works!', async () => {
-        expect(balanceTx).to.be.equal(0);
+        expect( balance ).to.be.equal(0);
       });
     });
+    context('tokens', async () => {
+      then('USDT', async () => {
+        expect( await tokenA.symbol() ).to.be.equal('USDT');
+      });
+      then('DOGE', async () => {
+        expect( await tokenB.symbol() ).to.be.equal('DGT');
+      });
+    });
+
   });
 
   describe('working', async () => {
     context('dude exchanges tokenA for tokenB', async () => {
       given(async () => {
         await tokenA.connect(dude).approve(swapper.address, 100, { gasPrice: 0 });
-        await swapper.connect(dude).provide(100, { gasPrice: 0 });
+        await swapper.connect(dude).provide(1, { gasPrice: 0 });
         console.log('ok?');
       });
       then('dude has money', async () => {
-        expect(await swapper.balanceFrom(dude.getAddress())).to.be.above(0);
+        expect(await swapper.balance(tokenAadd, dude.getAddress())).to.be.above(0);
       });
     });
   });
