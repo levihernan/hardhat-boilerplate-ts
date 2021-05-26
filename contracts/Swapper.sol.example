@@ -2,9 +2,9 @@
 pragma solidity ^0.8.4;
 
 contract Swapper {
-// le puedo dar tokenA y me lo swappea por tokenB
+// le puedo dar providedToken y me lo swappea por swappedToken
 
-  constructor(address _fromToken, address _toToken) {
+  constructor(address _providedToken, address _swappedToken) {
     // que le pueda mandar 2 addresses de token
   }
 

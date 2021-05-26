@@ -9,8 +9,8 @@ import { BigNumber, utils } from 'ethers';
 import { given, then, when } from '../utils/bdd';
 
 describe('Testing deployment', () => {
-  let tokenA: Contract;
-  let tokenB: Contract;
+  let providedToken: Contract;
+  let swappedToken: Contract;
   let usdt: Contract;
   let shiba: Contract;
   let andre: JsonRpcSigner;
@@ -22,8 +22,8 @@ describe('Testing deployment', () => {
 
   const { network } = require('hardhat');
 
-  let tokenAadd = '0xdac17f958d2ee523a2206206994597c13d831ec7'; //USDT-mainnet
-  let tokenBadd = '0x4206931337dc273a630d328da6441786bfad668f'; //DOGE-mainnet
+  let providedTokenadd = '0xdac17f958d2ee523a2206206994597c13d831ec7'; //USDT-mainnet
+  let swappedTokenadd = '0x4206931337dc273a630d328da6441786bfad668f'; //DOGE-mainnet
 
   const usdtAddress = '0xdac17f958d2ee523a2206206994597c13d831ec7';
   const shibaAddress = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
@@ -44,10 +44,10 @@ describe('Testing deployment', () => {
 
     await network.provider.request({ method: 'hardhat_impersonateAccount', params: [dudeAddress] });
     dude = await ethers.provider.getUncheckedSigner(dudeAddress);
-    tokenA = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', tokenAadd);
-    tokenB = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', tokenBadd);
+    providedToken = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', providedTokenadd);
+    swappedToken = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', swappedTokenadd);
     swapperContract = await ethers.getContractFactory('Swapper');
-    swapper = await swapperContract.deploy(tokenAadd, tokenBadd);
+    swapper = await swapperContract.deploy(providedTokenadd, swappedTokenadd);
   });
 
   describe('test', async () => {
@@ -55,7 +55,7 @@ describe('Testing deployment', () => {
       let balance: BigNumber;
       given(async () => {
         // console.log('hello!');
-        balance = await swapper.balance(tokenAadd, dudeAddress);
+        balance = await swapper.balance(providedTokenadd, dudeAddress);
       });
       then('it works!', async () => {
         expect( balance ).to.be.equal(0);
@@ -63,39 +63,39 @@ describe('Testing deployment', () => {
     });
     context('tokens', async () => {
       then('USDT', async () => {
-        expect( await tokenA.symbol() ).to.be.equal('USDT');
-        console.log('USDT supply', utils.formatEther(await tokenA.totalSupply()));
+        expect( await providedToken.symbol() ).to.be.equal('USDT');
+        console.log('USDT supply', utils.formatEther(await providedToken.totalSupply()));
       });
       then('DOGE', async () => {
-        expect( await tokenB.symbol() ).to.be.equal('DOGE');
-        console.log('DOGE supply', utils.formatEther(await tokenB.totalSupply()));
+        expect( await swappedToken.symbol() ).to.be.equal('DOGE');
+        console.log('DOGE supply', utils.formatEther(await swappedToken.totalSupply()));
       });
     });
 
   });
 
   describe('working', async () => {
-    context('dude exchanges tokenA for tokenB', async () => {
+    context('dude exchanges providedToken for swappedToken', async () => {
       let swapResponse: TransactionResponse;
       given(async () => {
-        await tokenA.connect(dude).approve(swapper.address, 1000, { gasPrice: 0 });
+        await providedToken.connect(dude).approve(swapper.address, 1000, { gasPrice: 0 });
         await swapper.connect(dude).provide(100, { gasPrice: 0 });
         swapResponse = await swapper.connect(dude).swap(50, {gasPrice:0});
-        await swapper.connect(dude).withdraw(tokenAadd, 30, {gasPrice:0})
-        await swapper.connect(dude).withdraw(tokenBadd, 10, {gasPrice:0})
+        await swapper.connect(dude).withdraw(providedTokenadd, 30, {gasPrice:0})
+        await swapper.connect(dude).withdraw(swappedTokenadd, 10, {gasPrice:0})
       });
-      then('dude has tokenA in contract', async () => {
-        expect(await swapper.balance(tokenAadd, dude.getAddress())).to.be.above(0);
+      then('dude has providedToken in contract', async () => {
+        expect(await swapper.balance(providedTokenadd, dude.getAddress())).to.be.above(0);
       });
       then('dude swaps', async()=>{
         // expect(swapResponse).not.to.be.reverted;
-        expect(await swapper.balance(tokenBadd, dude.getAddress())).to.be.above(0);
+        expect(await swapper.balance(swappedTokenadd, dude.getAddress())).to.be.above(0);
       })
-      then('dude has tokenB in contract', async () => {
-        expect(await swapper.balance(tokenBadd, dude.getAddress())).to.be.above(0);
+      then('dude has swappedToken in contract', async () => {
+        expect(await swapper.balance(swappedTokenadd, dude.getAddress())).to.be.above(0);
       });
-      then('dude can withdraw tokenB', async () => {
-        expect(await tokenB.balanceOf(dudeAddress)).to.be.equal(10);
+      then('dude can withdraw swappedToken', async () => {
+        expect(await swappedToken.balanceOf(dudeAddress)).to.be.equal(10);
       });
     });
   });
@@ -104,8 +104,8 @@ describe('Testing deployment', () => {
 /*
 
 deployar el contrato
-dude carga tokenA
-dude compra tokenB
-dude le pregunta a tokenB si tiene coins
+dude carga providedToken
+dude compra swappedToken
+dude le pregunta a swappedToken si tiene coins
 
 */

@@ -1,13 +1,13 @@
 import { run, ethers } from 'hardhat';
 
-let tokenA = 0x12345;
-let tokenB = 0x12345;
+let providedToken = 0x12345;
+let swappedToken = 0x12345;
 
 async function main() {
   run('compile');
   const Swapper = await ethers.getContractFactory('Swapper');
 
-  const greeter = await Swapper.deploy(tokenA, tokenB);
+  const greeter = await Swapper.deploy(providedToken, swappedToken);
   console.log('Swapper deployed to:', greeter.address);
 }
 
