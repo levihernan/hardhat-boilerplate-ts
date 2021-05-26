@@ -64,21 +64,21 @@ describe('Testing deployment', () => {
     context('tokens', async () => {
       then('USDT', async () => {
         expect( await tokenA.symbol() ).to.be.equal('USDT');
-        console.log( await tokenA.totalSupply() )
+        console.log('USDT supply', utils.formatEther(await tokenA.totalSupply()));
       });
       then('DOGE', async () => {
         expect( await tokenB.symbol() ).to.be.equal('DGT');
-        console.log( await tokenB.totalSupply() )
+        console.log('DOGE supply', utils.formatEther(await tokenB.totalSupply()));
       });
     });
 
   });
 
-  describe('working', async () => {
+  describe.only('working', async () => {
     context('dude exchanges tokenA for tokenB', async () => {
       given(async () => {
         await tokenA.connect(dude).approve(swapper.address, 100, { gasPrice: 0 });
-        console.log( await tokenA.allowance( dude._address, swapper.address ) );
+        console.log('allowance', utils.formatEther(await tokenA.allowance(dude._address, swapper.address)));
         await swapper.connect(dude).provide(1, { gasPrice: 0 });
         console.log('ok?');
       });
