@@ -88,7 +88,8 @@ describe('Testing deployment', () => {
         expect(await swapper.balance(tokenAadd, dude.getAddress())).to.be.above(0);
       });
       then('dude swaps', async()=>{
-        expect(swapResponse).not.to.be.reverted;
+        // expect(swapResponse).not.to.be.reverted;
+        expect(await swapper.balance(tokenBadd, dude.getAddress())).to.be.above(0);
       })
       then('dude has tokenB in contract', async () => {
         expect(await swapper.balance(tokenBadd, dude.getAddress())).to.be.above(0);
