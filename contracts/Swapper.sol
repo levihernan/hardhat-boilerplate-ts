@@ -52,9 +52,8 @@ contract Swapper {
   }
 
   function withdraw(uint256 _amount) public {
-    IERC20 token = IERC20(toToken);
     balanceFrom[msg.sender] = balanceFrom[msg.sender].sub(_amount);
-    token.safeTransferFrom(address(this), msg.sender, _amount);
+    IERC20(toToken).safeTransfer(msg.sender, _amount);
     emit TokenWithdrawed(msg.sender, _amount);
   }
 }
