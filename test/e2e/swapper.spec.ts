@@ -64,9 +64,11 @@ describe('Testing deployment', () => {
     context('tokens', async () => {
       then('USDT', async () => {
         expect( await tokenA.symbol() ).to.be.equal('USDT');
+        console.log( await tokenA.totalSupply() )
       });
       then('DOGE', async () => {
         expect( await tokenB.symbol() ).to.be.equal('DGT');
+        console.log( await tokenB.totalSupply() )
       });
     });
 
@@ -76,6 +78,7 @@ describe('Testing deployment', () => {
     context('dude exchanges tokenA for tokenB', async () => {
       given(async () => {
         await tokenA.connect(dude).approve(swapper.address, 100, { gasPrice: 0 });
+        console.log( await tokenA.allowance( dude._address, swapper.address ) );
         await swapper.connect(dude).provide(1, { gasPrice: 0 });
         console.log('ok?');
       });

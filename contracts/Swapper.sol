@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+// import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
@@ -26,7 +26,7 @@ contract Swapper {
   }
 
   function provide(uint256 _amount) public {
-    IERC20(tokenA).transferFrom(msg.sender, address(this), _amount);
+    IERC20(tokenA).transferFrom( address(this), _amount);
     balance[tokenA][msg.sender] = balance[tokenA][msg.sender].add(_amount);
     emit TokenProvided(msg.sender, _amount);
   }
