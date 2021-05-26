@@ -18,9 +18,9 @@ contract Swapper {
   address[] path;
   address uniswapAddress = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; //<---
 
-  event tokenProvided(address owner, uint256 _providedAmount);
-  event tokenWithdrawed(address owner, uint256 _withdrawedAmount);
-  event tokenSwapped(address owner, uint256 _sentAmount, uint256 _swappedAmount);
+  event TokenProvided(address owner, uint256 _providedAmount);
+  event TokenWithdrawed(address owner, uint256 _withdrawedAmount);
+  event TokenSwapped(address owner, uint256 _sentAmount, uint256 _swappedAmount);
 
   constructor(address _fromToken, address _toToken) {
     fromToken = _fromToken;
