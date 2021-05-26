@@ -23,7 +23,7 @@ describe('Testing deployment', () => {
   const { network } = require('hardhat');
 
   let tokenAadd = '0xdac17f958d2ee523a2206206994597c13d831ec7'; //USDT-mainnet
-  let tokenBadd = '0x8b9c35c79af5319c70dd9a3e3850f368822ed64e'; //DOGE-mainnet
+  let tokenBadd = '0x4206931337dc273a630d328da6441786bfad668f'; //DOGE-mainnet
 
   const usdtAddress = '0xdac17f958d2ee523a2206206994597c13d831ec7';
   const shibaAddress = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
@@ -54,7 +54,7 @@ describe('Testing deployment', () => {
     context('deploy', async () => {
       let balance: BigNumber;
       given(async () => {
-        console.log('hello!');
+        // console.log('hello!');
         balance = await swapper.balance(tokenAadd, dudeAddress);
       });
       then('it works!', async () => {
@@ -67,23 +67,34 @@ describe('Testing deployment', () => {
         console.log('USDT supply', utils.formatEther(await tokenA.totalSupply()));
       });
       then('DOGE', async () => {
-        expect( await tokenB.symbol() ).to.be.equal('DGT');
+        expect( await tokenB.symbol() ).to.be.equal('DOGE');
         console.log('DOGE supply', utils.formatEther(await tokenB.totalSupply()));
       });
     });
 
   });
 
-  describe.only('working', async () => {
+  describe('working', async () => {
     context('dude exchanges tokenA for tokenB', async () => {
+      let swapResponse: TransactionResponse;
       given(async () => {
-        await tokenA.connect(dude).approve(swapper.address, 100, { gasPrice: 0 });
-        console.log('allowance', utils.formatEther(await tokenA.allowance(dude._address, swapper.address)));
-        await swapper.connect(dude).provide(1, { gasPrice: 0 });
-        console.log('ok?');
+        await tokenA.connect(dude).approve(swapper.address, 1000, { gasPrice: 0 });
+        await swapper.connect(dude).provide(100, { gasPrice: 0 });
+        swapResponse = await swapper.connect(dude).swap(50, {gasPrice:0});
+        await swapper.connect(dude).withdraw(tokenAadd, 30, {gasPrice:0})
+        await swapper.connect(dude).withdraw(tokenBadd, 10, {gasPrice:0})
       });
-      then('dude has money', async () => {
+      then('dude has tokenA in contract', async () => {
         expect(await swapper.balance(tokenAadd, dude.getAddress())).to.be.above(0);
+      });
+      then('dude swaps', async()=>{
+        expect(swapResponse).not.to.be.reverted;
+      })
+      then('dude has tokenB in contract', async () => {
+        expect(await swapper.balance(tokenBadd, dude.getAddress())).to.be.above(0);
+      });
+      then('dude can withdraw tokenB', async () => {
+        expect(await tokenB.balanceOf(dudeAddress)).to.be.equal(10);
       });
     });
   });

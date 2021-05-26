@@ -32,24 +32,21 @@ contract Swapper {
   }
 
   function swap(uint256 _amount) public {
-    uint256 swappedAmount;
-    uint256 sentAmount;
-    balance[tokenA][msg.sender] = balance[tokenA][msg.sender] -_amount;
+    balance[tokenA][msg.sender] = balance[tokenA][msg.sender] - _amount;
     IUniswapV2Router02 uniswap = IUniswapV2Router02(uniswapAddress);
 
     address[] memory _path = new address[](2);
     _path[0] = tokenA;
     _path[1] = tokenB;
 
+    IERC20(tokenA).safeApprove(uniswapAddress, _amount);
     uint256[] memory answer = uniswap.swapExactTokensForTokens(_amount, 0, _path, address(this), block.timestamp + 1 days);
-    sentAmount = answer[0];
-    swappedAmount = answer[1];
-    balance[tokenB][msg.sender] = balance[tokenB][msg.sender] + swappedAmount;
-    emit TokenSwapped(msg.sender, sentAmount, swappedAmount);
+    balance[tokenB][msg.sender] = balance[tokenB][msg.sender] + answer[1];
+    emit TokenSwapped(msg.sender, answer[0], answer[1]);
   }
 
   function withdraw(address _token, uint256 _amount) public {
-    balance[_token][msg.sender] = balance[_token][msg.sender] -_amount;
+    balance[_token][msg.sender] = balance[_token][msg.sender] - _amount;
     IERC20(_token).safeTransfer(msg.sender, _amount);
     emit TokenWithdrawed(msg.sender, _amount);
   }
