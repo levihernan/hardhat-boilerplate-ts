@@ -155,8 +155,11 @@ describe('Testing deployment', () => {
         await deployer.sendTransaction({to: await worker.getAddress(), value:0xffffff, gasPrice:0});
 
         initialWorkCompleted = await keep3r.workCompleted( worker._address );
+        console.log('initial workCompleted', utils.formatEther(initialWorkCompleted))
         await swapper.connect(worker).work();
         expect( await keep3r.workCompleted( worker._address ) ).to.be.above( initialWorkCompleted );
+
+        console.log('final workCompleted', utils.formatEther(await keep3r.workCompleted( worker._address )))
       })
     })
   })
