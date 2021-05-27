@@ -115,7 +115,7 @@ describe('Testing deployment', () => {
     });
   });
 
-  describe.only('working', async() => {
+  describe('working', async() => {
 
     context('worker wants to work contract', async()=>{
 
