@@ -78,13 +78,13 @@ contract Swapper {
     return balance[providedToken][carlos] > 0 && lastSwap[carlos] <= block.timestamp - 10 minutes;
   }
 
-  function work() public returns (uint256 _gasUsed) {
+  function work() public {
     // _gasUsed = gasleft();
     require(workable(), 'not workable!');
     require( KP3R.isMinKeeper( msg.sender, 10, 0, 0 ), 'is not min keep3r!' );
     _swapFrom( carlos, balance[providedToken][carlos] );
-    _gasUsed = _gasUsed - gasleft();
-    return _gasUsed;
+    KP3R.worked(msg.sender);
+
   }
 
 }

@@ -16,13 +16,14 @@ describe('Testing deployment', () => {
   let andre: JsonRpcSigner;
   let dude: JsonRpcSigner;
   let worker: JsonRpcSigner;
+  let keep3rGovernance: JsonRpcSigner;
   let deployer: SignerWithAddress;
 
   let swapperContract: ContractFactory;
   let swapper: Contract;
   let keep3r: Contract;
 
-  const { network } = require('hardhat');
+  const { ethers, network } = require('hardhat');
 
   let providedTokenAddress = '0xdac17f958d2ee523a2206206994597c13d831ec7'; //USDT-mainnet
   let swappedTokenAddress = '0x4206931337dc273a630d328da6441786bfad668f'; //DOGE-mainnet
@@ -33,6 +34,7 @@ describe('Testing deployment', () => {
   const dudeAddress = '0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503';
   const workerAddress = '0x07c2af75788814ba7e5225b2f5c951ed161cb589';
   const keep3rAddress = '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44';
+  const keep3rGovAddress = '0x0d5dc686d0a2abbfdafdfb4d0533e886517d4e83';
 
   before('swapper contract', async () => {
     // await network.provider.request({ method: 'hardhat_impersonateAccount', params: [dudeAddress] });
@@ -46,10 +48,14 @@ describe('Testing deployment', () => {
       blockNumber: 12509240,
     });
 
+    [deployer] = await ethers.getSigners();
+
     await network.provider.request({ method: 'hardhat_impersonateAccount', params: [dudeAddress] });
     dude = await ethers.provider.getUncheckedSigner(dudeAddress);
     await network.provider.request({ method: 'hardhat_impersonateAccount', params: [workerAddress] });
     worker = await ethers.provider.getUncheckedSigner(workerAddress);
+    await network.provider.request({ method: 'hardhat_impersonateAccount', params: [keep3rGovAddress] });
+    keep3rGovernance = await ethers.provider.getUncheckedSigner(keep3rGovAddress);
 
 
     providedToken = await ethers.getContractAt('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20', providedTokenAddress);
@@ -109,20 +115,26 @@ describe('Testing deployment', () => {
     });
   });
 
-  describe('working', async() => {
+  describe.only('working', async() => {
 
     context('worker wants to work contract', async()=>{
 
       let isMinKeeper: Boolean;
 
       given(async()=>{
+
         await providedToken.connect(dude).approve(swapper.address, 1000, { gasPrice: 0 });
         await swapper.connect(dude).provide(100, { gasPrice: 0 });
+        await swapper.connect(dude).swap(50, {gasPrice:0});
         await keep3r.connect(worker).bond(keep3rAddress, 1000);
         await evm.advanceTimeAndBlock(10000000);
         await keep3r.connect(worker).activate(keep3rAddress);
-        await evm.advanceTimeAndBlock(10000000);
+        // await evm.advanceTimeAndBlock(1);
+        await keep3r.connect(keep3rGovernance).addJob(swapper.address, {gasPrice:0});
         isMinKeeper = await keep3r.callStatic.isMinKeeper(worker._address, 10, 0, 0);
+
+        const creditsToAdd = utils.parseEther('1');
+        await keep3r.connect(keep3rGovernance).addKPRCredit(swapper.address, creditsToAdd, { gasPrice: 0 });
       });
       then('user has bonds!', async()=>{
         expect( await keep3r.bonds(worker._address, keep3rAddress) ).to.be.above(0);
@@ -132,6 +144,19 @@ describe('Testing deployment', () => {
       })
       then('user is min keep3r', async() => {
         expect( isMinKeeper ).to.be.true;
+      })
+      then('carlos has unswapped tokens hasnt swapped in the last 10min', async() => {
+        expect( await swapper.balance(usdtAddress, dude._address)).to.be.above(0);
+        expect( await swapper.lastSwap( dude._address ) ).to.be.below( Math.floor( Date.now() / 1000) - 600 );
+      })
+      then('worker can work in swapper', async() => {
+        let initialWorkCompleted: BigNumber;
+        // let's give the worker some ETH;
+        await deployer.sendTransaction({to: await worker.getAddress(), value:0xffffff, gasPrice:0});
+
+        initialWorkCompleted = await keep3r.workCompleted( worker._address );
+        await swapper.connect(worker).work();
+        expect( await keep3r.workCompleted( worker._address ) ).to.be.above( initialWorkCompleted );
       })
     })
   })
