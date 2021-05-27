@@ -122,7 +122,7 @@ describe('Testing deployment', () => {
         await evm.advanceTimeAndBlock(10000000);
         await keep3r.connect(worker).activate(keep3rAddress);
         await evm.advanceTimeAndBlock(10000000);
-        isMinKeeper = await keep3r.isMinKeeper(worker._address, 10, 0, 0);
+        isMinKeeper = await keep3r.callStatic.isMinKeeper(worker._address, 10, 0, 0);
       });
       then('user has bonds!', async()=>{
         expect( await keep3r.bonds(worker._address, keep3rAddress) ).to.be.above(0);
